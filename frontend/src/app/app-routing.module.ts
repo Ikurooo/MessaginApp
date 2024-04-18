@@ -1,19 +1,13 @@
-// app-routing.module.ts
-
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import {SigninComponent} from "./component/sign-in/sign-in.component";
-import {SignupComponent} from "./component/sign-up/sign-up.component";
+import { SigninComponent } from "./component/sign-in/sign-in.component";
+import { SignupComponent } from "./component/sign-up/sign-up.component";
 
 const routes: Routes = [
-  { path: '', redirectTo: 'messaging', pathMatch: 'full' },
-  {
-    path: 'messaging', children: [
-      { path: '', component: SignupComponent },
-      { path: 'signin', component: SigninComponent },
-    ]
-  },
-  { path: '**', redirectTo: 'signin' },
+  { path: '', redirectTo: 'signin', pathMatch: 'full' },
+  { path: 'signin', component: SigninComponent },
+  { path: 'signup', component: SignupComponent },
+  { path: '**', redirectTo: 'signin' }, // Redirect any other route to signin
 ];
 
 @NgModule({
