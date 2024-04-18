@@ -3,12 +3,14 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import {SigninComponent} from "./component/sign-in/sign-in.component";
+import {SignupComponent} from "./component/sign-up/sign-up.component";
 
 const routes: Routes = [
-  { path: '', redirectTo: 'signin', pathMatch: 'full' },
+  { path: '', redirectTo: 'messaging', pathMatch: 'full' },
   {
-    path: 'signin', children: [
-      { path: '', component: SigninComponent },
+    path: 'messaging', children: [
+      { path: '', component: SignupComponent },
+      { path: 'signin', component: SigninComponent },
     ]
   },
   { path: '**', redirectTo: 'signin' },

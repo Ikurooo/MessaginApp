@@ -3,10 +3,14 @@
     <div class="col-md-6">
       <div class="card">
         <div class="card-header">
-          <h2 class="card-title text-center">Sign In</h2>
+          <h2 class="card-title text-center">Sign Up</h2>
         </div>
         <div class="card-body">
-          <form (ngSubmit)="signIn()">
+          <form (ngSubmit)="signUp()">
+            <div class="form-group">
+              <label for="username">Username:</label>
+              <input type="text" id="username" name="username" [(ngModel)]="username" required class="form-control">
+            </div>
             <div class="form-group">
               <label for="email">Email:</label>
               <input type="email" id="email" name="email" [(ngModel)]="email" required class="form-control">
@@ -15,7 +19,7 @@
               <label for="password">Password:</label>
               <input type="password" id="password" name="password" [(ngModel)]="password" required class="form-control">
             </div>
-            <button type="submit" class="btn btn-primary btn-block">Sign In</button>
+            <button type="submit" class="btn btn-primary btn-block">Sign Up</button>
           </form>
           <div *ngIf="errorMessage" class="alert alert-danger mt-3">
             {{ errorMessage }}
