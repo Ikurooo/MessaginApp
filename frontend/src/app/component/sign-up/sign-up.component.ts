@@ -1,25 +1,60 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 
 @Component({
   selector: 'app-signup',
   templateUrl: './sign-up.component.html',
   styleUrls: ['./sign-up.component.scss']
 })
-export class SignupComponent {
-  username: string | null = null;
-  email: string | null = null;
-  password: string | null = null;
+export class SignupComponent implements OnInit {
+  signUpForm: FormGroup | undefined;
   errorMessage: string | null = null;
 
-  constructor() {}
+  constructor(private formBuilder: FormBuilder) {}
 
-  signUp() {
-    // Here you can add your signup logic.
-    // For this basic example, let's just log the signup details.
-    console.log('Username:', this.username);
-    console.log('Email:', this.email);
-    console.log('Password:', this.password);
-
-    // You can add further validation and backend API calls here.
+  ngOnInit(): void {
+    this.signUpForm = this.formBuilder.group({
+      username: ['', Validators.required],
+      email: ['', [Validators.required, Validators.email]],
+      password: ['', Validators.required]
+    });
   }
+
+  signUp(): void {
+    if (!this.signUpForm) {
+      this.errorMessage = "Application Error: Form not initialized.";
+      return;
+    }
+
+    const username = this.signUpForm.value.username;
+    const email = this.signUpForm.value.email;
+    const password = this.signUpForm.value.password;
+
+    if (this.signUpForm.valid) {
+
+    } else {
+      this.errorMessage = '';
+      const usernameControl = this.signUpForm.get('username');
+      const emailControl = this.signUpForm.get('email');
+      const passwordControl = this.signUpForm.get('password');
+
+      if (usernameControl && usernameControl.errors && usernameControl.errors.required) {
+        this.errorMessage += 'Username is required. ';
+      }
+
+      if (emailControl && emailControl.errors) {
+        if (emailControl.errors.required) {
+          this.errorMessage += 'Email is required. ';
+        }
+        if (emailControl.errors.email) {
+          this.errorMessage += 'Invalid email format. (example@gmail.com)';
+        }
+      }
+
+      if (passwordControl && passwordControl.errors && passwordControl.errors.required) {
+        this.errorMessage += 'Password is required. (Must be at least 6 characters.)';
+      }
+    }
+  }
+
 }

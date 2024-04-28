@@ -6,20 +6,35 @@
           <h2 class="card-title text-center">Sign Up</h2>
         </div>
         <div class="card-body">
-          <form (ngSubmit)="signUp()">
+          <form (ngSubmit)="signUp()" [formGroup]="signUpForm">
             <div class="form-group">
               <label for="username">Username:</label>
-              <input type="text" id="username" name="username" [(ngModel)]="username" required class="form-control">
+              <input class="form-control" formControlName="username" id="username" type="text">
+              <div *ngIf="signUpForm.get('username').invalid && signUpForm.get('username').touched" class="text-danger">
+                Username is required
+              </div>
             </div>
             <div class="form-group">
               <label for="email">Email:</label>
-              <input type="email" id="email" name="email" [(ngModel)]="email" required class="form-control">
+              <input class="form-control" formControlName="email" id="email" type="email">
+              <div *ngIf="signUpForm.get('email').invalid
+                  && signUpForm.get('email').touched
+                  && signUpForm.get('email').value === ''"
+                   class="text-danger">
+                  Email is required
+              </div>
+              <div *ngIf="signUpForm.get('email').errors?.email && signUpForm.get('email').touched" class="text-danger">
+                Invalid email format
+              </div>
             </div>
             <div class="form-group">
               <label for="password">Password:</label>
-              <input type="password" id="password" name="password" [(ngModel)]="password" required class="form-control">
+              <input class="form-control" formControlName="password" id="password" type="password">
+              <div *ngIf="signUpForm.get('password').invalid && signUpForm.get('password').touched" class="text-danger">
+                Password is required
+              </div>
             </div>
-            <button type="submit" class="btn btn-primary btn-block">Sign Up</button>
+            <button class="btn btn-primary btn-block mt-3" type="submit">Sign Up</button>
           </form>
           <div *ngIf="errorMessage" class="alert alert-danger mt-3">
             {{ errorMessage }}
