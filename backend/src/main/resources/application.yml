@@ -2,16 +2,20 @@ logging:
   level:
     root: INFO
   file:
-    name: ./log/messaging.log
+    name: ./log/wendys-tournament-management.log
   pattern:
     level: r=%X{r} ip=%X{ip} %5p
 spring:
   application:
     name: messaging
-  cassandra:
-    keyspace-name: yourkeyspace
-    contact-points: localhost
-    port: 9042
+  datasource:
+    url: "jdbc:h2:./wendydb;AUTO_SERVER=TRUE;INIT=RUNSCRIPT FROM 'classpath:sql/createSchema.sql'"
+    username: "sa"
+    password: ""
+    driver-class-name: org.h2.Driver
+  h2:
+    console:
+      enabled: true
 server:
   port: 8080
   error:

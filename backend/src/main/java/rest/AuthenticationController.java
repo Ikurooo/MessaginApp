@@ -1,62 +1,51 @@
 package rest;
 
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpSession;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.ArrayList;
-import java.util.List;
+import config.JwtTokenUtil;
+import dto.JwtRequest;
+import dto.JwtResponse;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.DisabledException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping(path = AuthenticationController.BASE_PATH)
+@RequestMapping("/api/auth")
 public class AuthenticationController {
 
-    static final String BASE_PATH = "/session";
-    private static final Logger logger = LoggerFactory.getLogger(AuthenticationController.class);
+    @Autowired
+    private AuthenticationManager authenticationManager;
 
-    @GetMapping("/")
-    public String process(Model model, HttpSession session) {
-        if (session.isNew()) {
-            logger.debug("New session created");
-        }
-        List<String> messages = getSessionMessages(session);
-        model.addAttribute("sessionMessages", messages);
-        logger.debug("Session messages retrieved: {}", messages);
-        return "index";
+    @Autowired
+    private JwtTokenUtil jwtTokenUtil;
+
+    @Autowired
+    private UserDetailsService userDetailsService;
+
+    @PostMapping("/login")
+    public ResponseEntity<?> createAuthenticationToken(@RequestBody JwtRequest authenticationRequest) throws Exception {
+        authenticate(authenticationRequest.getUsername(), authenticationRequest.getPassword());
+
+        final UserDetails userDetails = userDetailsService.loadUserByUsername(authenticationRequest.getUsername());
+        final String token = jwtTokenUtil.generateToken(userDetails);
+
+        return ResponseEntity.ok(new JwtResponse(token));
     }
 
-    @PostMapping("/persistMessage")
-    public String persistMessage(@RequestParam("msg") String msg, HttpServletRequest request) {
-        HttpSession session = request.getSession();
-        List<String> messages = getSessionMessages(session);
-        messages.add(msg);
-        session.setAttribute("MY_SESSION_MESSAGES", messages);
-        logger.debug("Message '{}' persisted in session", msg);
-        return "redirect:/";
-    }
-
-    @PostMapping("/destroy")
-    public String destroySession(HttpServletRequest request) {
-        HttpSession session = request.getSession(false);
-        if (session != null) {
-            session.invalidate();
-            logger.debug("Session invalidated");
-        } else {
-            logger.warn("No session found to invalidate");
+    private void authenticate(String username, String password) throws Exception {
+        try {
+            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
+        } catch (DisabledException e) {
+            throw new Exception("USER_DISABLED", e);
+        } catch (BadCredentialsException e) {
+            throw new Exception("INVALID_CREDENTIALS", e);
         }
-        return "redirect:/";
-    }
-
-    private List<String> getSessionMessages(HttpSession session) {
-        @SuppressWarnings("unchecked")
-        List<String> messages = (List<String>) session.getAttribute("MY_SESSION_MESSAGES");
-        if (messages == null) {
-            messages = new ArrayList<>();
-            session.setAttribute("MY_SESSION_MESSAGES", messages);
-        }
-        return messages;
     }
 }
